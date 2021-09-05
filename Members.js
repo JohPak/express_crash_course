@@ -1,4 +1,4 @@
-// name is uppercase because this is basically a model
+// name Members is uppercase because this is basically a model
 
 const members = [
     {

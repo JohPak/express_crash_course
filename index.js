@@ -1,8 +1,17 @@
 const express = require('express');
 const PORT = process.env.PORT || 5000;
 const path = require('path');
-const app = express();
+const exphbs = require('express-handlebars');
 const logger = require('./middleware/logger');
+const members = require('./Members');
+
+const app = express();
+
+// Handlebars middleware
+// set the view engine to handlebars and set default layout filename as 'main'
+// these two lines are basically copied from the documentation
+app.engine('handlebars', exphbs({defaultLayout: 'main'}));
+app.set('view engine', 'handlebars');
 
 // not too handy to serve files one by one...
 // app.get('/', (req, res) => {
@@ -18,9 +27,17 @@ const logger = require('./middleware/logger');
     app.use(express.json()); // lets us handle raw json
     app.use(express.urlencoded({extended: false})); // lets us handle form submission and url encoded data
 
-    // ...instead set static folder to make everything under it available
-    // (app.use = middleware here)
-    app.use(express.static(path.join(__dirname,'public')));
+// Homepage Route
+// passing data = it's enough to write just "members", as it equals "members: members"
+app.get('/', (req, res) => res.render('index', {
+    title: 'Member App',
+    members
+}));
+
+
+    // // ...instead set static folder to make everything under it available
+    // // (app.use = middleware here)
+    // app.use(express.static(path.join(__dirname,'public')));
 
     // Members API routes
     app.use('/api/members', require('./routes/api/members'))

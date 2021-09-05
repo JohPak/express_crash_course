@@ -59,6 +59,8 @@ router.post('/', (req, res) => {
     // add new member to array
     members.push(newMember);
     res.json(members);
+    // res.redirect to slash will show the updated member in the list
+    // res.redirect('/');
 
 });
 
@@ -68,8 +70,33 @@ router.put('/:id', (req, res) => {
     const found = members.some(member => member.id === parseInt(req.params.id));
 
     if (found) {
-        res.json(members.filter(member => member.id === parseInt(req.params.id)));
+        // get email and name from req.body
+        const updMember = req.body;
+        members.forEach(member => {
+            if (member.id === parseInt(req.params.id)) {
+                //ternary operator. Check if req.body includes new name. If so, then use it. If not, use the original name. Same with email address.
+                member.name = updMember.name ? updMember.name : member.name ;
+                member.email = updMember.email ? updMember.email : member.email ;
+
+                res.json({msg: 'Member updated', member});
+            }
+        });
     } 
+    else {
+        res.status(400).json({msg: `No member with the id of ${req.params.id}`});
+    }
+});
+
+router.get('/', (req, res) => res.json(members));
+
+// DELETE MEMBER
+router.delete('/:id', (req, res) => {
+    const found = members.some(member => member.id === parseInt(req.params.id));
+
+    if (found) {
+        res.json({msg: 'Member deleted', members: members.filter(member => member.id !== parseInt(req.params.id))});
+
+    } //end if (found)
     else {
         res.status(400).json({msg: `No member with the id of ${req.params.id}`});
     }
