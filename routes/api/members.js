@@ -2,11 +2,11 @@ const express = require('express');
 // when we use router here, we use router.get instead of app.get
 const router = express.Router();
 const members = require('../../Members.js');
-
+const uuid = require('uuid');
 
 router.get('/', (req, res) => res.json(members));
 
-// get single member
+// GET SINGLE MEMBER
 // :id is url parameter
 router.get('/:id', (req, res) => {
     // go to postman and
@@ -36,9 +36,43 @@ router.get('/:id', (req, res) => {
     }
 });
 
-// create member
+// CREATE MEMBER
 router.post('/', (req, res) => {
-    res.send(req.body);
+    // res.send(req.body);
+
+    // create object for member
+    const newMember = {
+        // creates unique id with uuid
+        id: uuid.v4(),
+        name: req.body.name,
+        email: req.body.email,
+        status: 'active'
+    }
+
+    //check that name and email has been sent
+    if (!newMember.name || !newMember.email) {
+        // send bad request
+        // Use return here. If not use return, will get error "headers already sent"...no idea why??
+        return res.status(400).json({msg: 'Please include a name and email'});
+    }
+    
+    // add new member to array
+    members.push(newMember);
+    res.json(members);
+
+});
+
+// UPDATE MEMBER
+// Whe updating data, use PUT-request
+router.put('/:id', (req, res) => {
+    const found = members.some(member => member.id === parseInt(req.params.id));
+
+    if (found) {
+        res.json(members.filter(member => member.id === parseInt(req.params.id)));
+    } 
+    else {
+        res.status(400).json({msg: `No member with the id of ${req.params.id}`});
+    }
 });
 
 module.exports = router;
